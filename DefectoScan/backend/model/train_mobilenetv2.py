@@ -12,13 +12,14 @@ from tensorflow.keras.preprocessing import image
 np.random.seed(42)
 tf.random.set_seed(42)
 
-train_dir = 'C:/Users/Arun/OneDrive/Desktop/DefectoScan/DefectoScan/data/Chest Xray Dataset/chest_xray/chest_xray/train'
-test_dir  = 'C:/Users/Arun/OneDrive/Desktop/DefectoScan/DefectoScan/data/Chest Xray Dataset/chest_xray/chest_xray/test'
+# Update paths to be relative to the root directory
+train_dir = 'data/Chest Xray Dataset/chest_xray/chest_xray/train'
+test_dir  = 'data/Chest Xray Dataset/chest_xray/chest_xray/test'
 
 if not os.path.exists(train_dir): raise FileNotFoundError(train_dir)
 if not os.path.exists(test_dir): raise FileNotFoundError(test_dir)
 
-IMG_SIZE = (224, 224)
+IMG_SIZE = (224, 224) 
 BATCH_SIZE = 16
 EPOCHS = 20
 
