@@ -3,6 +3,8 @@ from flask_cors import CORS
 from werkzeug.utils import secure_filename
 from pymongo import MongoClient
 import tensorflow as tf
+from tensorflow.keras.applications import MobileNetV2
+from tensorflow.keras import layers, models
 from datetime import datetime
 import os
 import numpy as np
@@ -14,54 +16,63 @@ UPLOAD_FOLDER = os.path.join(os.getcwd(), 'uploads')
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-# Try multiple methods to load the model
+# Try to load the model using the same architecture as train_mobilenetv2.py
 model = None
 current_dir = os.path.dirname(os.path.abspath(__file__))
 model_path = os.path.join(current_dir, 'model', 'model_mobilenetv2.h5')
 print(f"Looking for model at: {model_path}")
 
-# Method 1: Standard loading
+# Method 1: Try to load the saved model
 try:
     model = tf.keras.models.load_model(model_path, compile=False)
-    print("Model loaded successfully with standard method!")
+    print("Model loaded successfully from saved file!")
 except Exception as e:
-    print(f"Standard loading failed: {e}")
+    print(f"Loading saved model failed: {e}")
     
-    # Method 2: With custom_objects
+    # Method 2: Create the model using the same architecture as train_mobilenetv2.py
     try:
-        model = tf.keras.models.load_model(model_path, custom_objects={'tf': tf}, compile=False)
-        print("Model loaded successfully with custom_objects!")
-    except Exception as e2:
-        print(f"Custom objects loading failed: {e2}")
+        IMG_SIZE = (224, 224)
+        base_model = MobileNetV2(input_shape=(*IMG_SIZE, 3), include_top=False, weights='imagenet')
+        base_model.trainable = False
         
-        # Method 3: Try loading weights only
-        try:
-            from tensorflow.keras.applications import MobileNetV2
-            base_model = MobileNetV2(weights='imagenet', include_top=False, input_shape=(224, 224, 3))
-            x = tf.keras.layers.GlobalAveragePooling2D()(base_model.output)
-            x = tf.keras.layers.Dense(1, activation='sigmoid')(x)
-            model = tf.keras.Model(inputs=base_model.input, outputs=x)
-            model.load_weights(model_path)
-            print("Model loaded successfully with weights only!")
-        except Exception as e3:
-            print(f"Weights loading failed: {e3}")
-            
-            # Method 4: Create a simple model for testing
+        model = models.Sequential([
+            base_model,
+            layers.GlobalAveragePooling2D(),
+            layers.Dense(128, activation='relu'),
+            layers.Dropout(0.3),
+            layers.Dense(1, activation='sigmoid')
+        ])
+        
+        # Try to load weights if the model file exists
+        if os.path.exists(model_path):
             try:
-                model = tf.keras.Sequential([
-                    tf.keras.layers.Input(shape=(224, 224, 3)),
-                    tf.keras.layers.Conv2D(32, 3, activation='relu'),
-                    tf.keras.layers.MaxPooling2D(),
-                    tf.keras.layers.Conv2D(64, 3, activation='relu'),
-                    tf.keras.layers.MaxPooling2D(),
-                    tf.keras.layers.Conv2D(64, 3, activation='relu'),
-                    tf.keras.layers.Flatten(),
-                    tf.keras.layers.Dense(64, activation='relu'),
-                    tf.keras.layers.Dense(1, activation='sigmoid')
-                ])
-                print("Created fallback model for testing!")
-            except Exception as e4:
-                print(f"Fallback model creation failed: {e4}")
+                model.load_weights(model_path)
+                print("Model created and weights loaded successfully!")
+            except Exception as e2:
+                print(f"Loading weights failed: {e2}")
+                print("Using model with ImageNet weights only.")
+        else:
+            print("Model file not found. Using model with ImageNet weights only.")
+            
+    except Exception as e3:
+        print(f"Creating model failed: {e3}")
+        
+        # Method 3: Create a simple fallback model
+        try:
+            model = tf.keras.Sequential([
+                tf.keras.layers.Input(shape=(224, 224, 3)),
+                tf.keras.layers.Conv2D(32, 3, activation='relu'),
+                tf.keras.layers.MaxPooling2D(),
+                tf.keras.layers.Conv2D(64, 3, activation='relu'),
+                tf.keras.layers.MaxPooling2D(),
+                tf.keras.layers.Conv2D(64, 3, activation='relu'),
+                tf.keras.layers.Flatten(),
+                tf.keras.layers.Dense(64, activation='relu'),
+                tf.keras.layers.Dense(1, activation='sigmoid')
+            ])
+            print("Created fallback model for testing!")
+        except Exception as e4:
+            print(f"Fallback model creation failed: {e4}")
 
 # MongoDB setup
 MONGO_URI = "mongodb+srv://prarunbalaji853:Arun6768@cluster0.k8zw842.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
