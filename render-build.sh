@@ -1,21 +1,22 @@
-#!/usr/bin/env bash
-# exit on error
-set -o errexit
+#!/bin/bash
+# Force Python 3.10.11 for Render
+set -e
 
-# Install numpy first with explicit version
-pip install numpy==1.26.2
+echo "Forcing Python 3.10.11 environment..."
 
-# Install other dependencies
-pip install Flask==3.0.0
-pip install gunicorn==21.2.0
-pip install tensorflow-cpu==2.19.0
-pip install pillow==10.1.0
-pip install pymongo==4.6.0
-pip install requests==2.31.0
+# Set Python version environment variable
+export PYTHON_VERSION=3.10.11
 
-# Create uploads directory if it doesn't exist
+# Upgrade pip
+pip install --upgrade pip
+
+# Install setuptools and wheel first
+pip install setuptools==65.0.0 wheel==0.40.0
+
+# Install requirements
+pip install -r requirements.txt
+
+# Create uploads directory
 mkdir -p uploads
 
-# Set environment variables for TensorFlow
-export TF_CPP_MIN_LOG_LEVEL=2
-export PYTHONPATH="${PYTHONPATH}:$(pwd)" 
+echo "Python 3.10.11 build complete!" 
