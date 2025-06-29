@@ -8,7 +8,7 @@ pip install numpy==1.26.2
 # Install other dependencies
 pip install Flask==3.0.0
 pip install gunicorn==21.2.0
-pip install tensorflow-cpu==2.15.0
+pip install tensorflow-cpu==2.19.0
 pip install pillow==10.1.0
 pip install pymongo==4.6.0
 pip install requests==2.31.0
