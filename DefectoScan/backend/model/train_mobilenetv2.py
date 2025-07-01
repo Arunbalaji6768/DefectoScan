@@ -12,12 +12,8 @@ from tensorflow.keras.preprocessing import image
 np.random.seed(42)
 tf.random.set_seed(42)
 
-base_dir = os.path.abspath(os.path.dirname(__file__))
-train_dir = os.path.join(base_dir, '..', '..', 'data', 'Chest Xray Dataset', 'chest_xray', 'chest_xray', 'train')
-test_dir  = os.path.join(base_dir, '..', '..', 'data', 'Chest Xray Dataset', 'chest_xray', 'chest_xray', 'test')
-
-print(f"Resolved train_dir: {os.path.abspath(train_dir)}")
-print(f"Resolved test_dir: {os.path.abspath(test_dir)}")
+train_dir = 'data/Chest Xray Dataset/chest_xray/chest_xray/train'
+test_dir  = 'data/Chest Xray Dataset/chest_xray/chest_xray/test'
 
 if not os.path.exists(train_dir): raise FileNotFoundError(train_dir)
 if not os.path.exists(test_dir): raise FileNotFoundError(test_dir)
@@ -80,8 +76,9 @@ print(f"Test Accuracy: {acc:.4f}")
 
 model_dir = os.getcwd()
 os.makedirs(model_dir, exist_ok=True)
-model.save(os.path.join(model_dir, 'model_mobilenetv2.h5'))
-print("Model saved!")
+model.save(os.path.join(model_dir, 'model_mobilenetv2.h5'), save_format='h5')
+model.save(os.path.join(model_dir, 'model_mobilenetv2.keras'))
+print("Model saved in both .h5 and .keras formats!")
 
 history_data = {
     'phase1': history1.history,
