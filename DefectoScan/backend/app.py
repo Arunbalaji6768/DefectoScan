@@ -19,15 +19,21 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 # Try to load the model using the same architecture as train_mobilenetv2.py
 model = None
 current_dir = os.path.dirname(os.path.abspath(__file__))
-model_path = os.path.join(current_dir, 'model', 'model_mobilenetv2.h5')
-print(f"Looking for model at: {model_path}")
+model_path_keras = os.path.join(current_dir, 'model', 'model_mobilenetv2.keras')
+model_path_h5 = os.path.join(current_dir, 'model', 'model_mobilenetv2.h5')
+print(f"Looking for model at: {model_path_keras} or {model_path_h5}")
 
-# Method 1: Try to load the saved model
+# Try to load .keras first, then .h5
 try:
-    model = tf.keras.models.load_model(model_path, compile=False)
-    print("Model loaded successfully from saved file!")
-except Exception as e:
-    print(f"Loading saved model failed: {e}")
+    model = tf.keras.models.load_model(model_path_keras)
+    print("Model loaded successfully from .keras file!")
+except Exception as e_keras:
+    print(f"Loading .keras model failed: {e_keras}")
+    try:
+        model = tf.keras.models.load_model(model_path_h5, compile=False)
+        print("Model loaded successfully from .h5 file!")
+    except Exception as e_h5:
+        print(f"Loading .h5 model failed: {e_h5}")
     
     # Method 2: Create the model using the same architecture as train_mobilenetv2.py
     try:
@@ -44,9 +50,9 @@ except Exception as e:
         ])
         
         # Try to load weights if the model file exists
-        if os.path.exists(model_path):
+        if os.path.exists(model_path_h5):
             try:
-                model.load_weights(model_path)
+                model.load_weights(model_path_h5)
                 print("Model created and weights loaded successfully!")
             except Exception as e2:
                 print(f"Loading weights failed: {e2}")
@@ -94,150 +100,11 @@ def preprocess(img_path):
 
 @app.route('/')
 def index():
-    """Serve a simple HTML interface for testing"""
-    html = """
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>DefectoScan - Chest X-Ray Analysis</title>
-        <style>
-            body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
-            .container { text-align: center; }
-            .upload-area { border: 2px dashed #ccc; padding: 40px; margin: 20px 0; border-radius: 10px; }
-            .upload-area:hover { border-color: #007bff; }
-            .btn { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin: 5px; }
-            .btn:hover { background: #0056b3; }
-            .result { margin-top: 20px; padding: 15px; border-radius: 5px; }
-            .normal { background: #d4edda; color: #155724; }
-            .pneumonia { background: #f8d7da; color: #721c24; }
-            .error { background: #f8d7da; color: #721c24; }
-            .status { background: #e2e3e5; color: #383d41; padding: 10px; border-radius: 5px; margin: 10px 0; }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <h1>DefectoScan</h1>
-            <h2>Chest X-Ray Analysis</h2>
-            <p>Upload a chest X-ray image to analyze for pneumonia detection.</p>
-            
-            <div class="status">
-                <strong>Model Status:</strong> <span id="modelStatus">Loading...</span><br>
-                <strong>Database Status:</strong> <span id="dbStatus">Loading...</span>
-            </div>
-            
-            <div class="upload-area">
-                <input type="file" id="fileInput" accept="image/*" style="display: none;">
-                <button class="btn" onclick="document.getElementById('fileInput').click()">Choose Image</button>
-                <p id="fileName"></p>
-            </div>
-            
-            <button class="btn" onclick="analyzeImage()" id="analyzeBtn" disabled>Analyze Image</button>
-            <button class="btn" onclick="testModel()">Test Model</button>
-            
-            <div id="result"></div>
-        </div>
-
-        <script>
-            // Check status on page load
-            window.onload = function() {
-                checkStatus();
-            };
-            
-            async function checkStatus() {
-                try {
-                    const response = await fetch('/health');
-                    const data = await response.json();
-                    document.getElementById('modelStatus').textContent = data.model_loaded ? 'Loaded' : 'Not Loaded';
-                    document.getElementById('dbStatus').textContent = data.mongodb_connected ? 'Connected' : 'Not Connected';
-                } catch (error) {
-                    document.getElementById('modelStatus').textContent = 'Error';
-                    document.getElementById('dbStatus').textContent = 'Error';
-                }
-            }
-            
-            document.getElementById('fileInput').addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if (file) {
-                    document.getElementById('fileName').textContent = file.name;
-                    document.getElementById('analyzeBtn').disabled = false;
-                }
-            });
-
-            async function analyzeImage() {
-                const fileInput = document.getElementById('fileInput');
-                const file = fileInput.files[0];
-                const resultDiv = document.getElementById('result');
-                
-                if (!file) {
-                    alert('Please select a file first');
-                    return;
-                }
-
-                const formData = new FormData();
-                formData.append('file', file);
-
-                resultDiv.innerHTML = '<p>Analyzing image...</p>';
-                resultDiv.className = 'result';
-
-                try {
-                    const response = await fetch('/predict', {
-                        method: 'POST',
-                        body: formData
-                    });
-
-                    const data = await response.json();
-
-                    if (response.ok) {
-                        const className = data.label === 'Normal' ? 'normal' : 'pneumonia';
-                        resultDiv.className = `result ${className}`;
-                        resultDiv.innerHTML = `
-                            <h3>Analysis Result:</h3>
-                            <p><strong>Diagnosis:</strong> ${data.label}</p>
-                            <p><strong>Confidence:</strong> ${(data.confidence * 100).toFixed(2)}%</p>
-                        `;
-                    } else {
-                        resultDiv.className = 'result error';
-                        resultDiv.innerHTML = `<p>Error: ${data.error}</p>`;
-                    }
-                } catch (error) {
-                    resultDiv.className = 'result error';
-                    resultDiv.innerHTML = `<p>Error: ${error.message}</p>`;
-                }
-            }
-            
-            async function testModel() {
-                const resultDiv = document.getElementById('result');
-                resultDiv.innerHTML = '<p>Testing model with sample data...</p>';
-                resultDiv.className = 'result';
-                
-                try {
-                    const response = await fetch('/test');
-                    const data = await response.json();
-                    
-                    if (response.ok) {
-                        resultDiv.className = 'result normal';
-                        resultDiv.innerHTML = `
-                            <h3>Model Test Result:</h3>
-                            <p><strong>Status:</strong> ${data.message}</p>
-                            <p><strong>Sample Prediction:</strong> ${data.prediction}</p>
-                            <p><strong>Model Type:</strong> ${data.model_type}</p>
-                        `;
-                    } else {
-                        resultDiv.className = 'result error';
-                        resultDiv.innerHTML = `<p>Error: ${data.error}</p>`;
-                    }
-                } catch (error) {
-                    resultDiv.className = 'result error';
-                    resultDiv.innerHTML = `<p>Error: ${error.message}</p>`;
-                }
-            }
-        </script>
-    </body>
-    </html>
-    """
-    return html
+    return jsonify({
+        'message': 'DefectoScan API is running',
+        'model_loaded': model is not None,
+        'endpoints': ['/predict', '/health']
+    })
 
 @app.route('/health')
 def health():
