@@ -12,9 +12,12 @@ from tensorflow.keras.preprocessing import image
 np.random.seed(42)
 tf.random.set_seed(42)
 
-# Update paths to be relative to the root directory
-train_dir = 'data/Chest Xray Dataset/chest_xray/chest_xray/train'
-test_dir  = 'data/Chest Xray Dataset/chest_xray/chest_xray/test'
+base_dir = os.path.abspath(os.path.dirname(__file__))
+train_dir = os.path.join(base_dir, '..', '..', 'data', 'Chest Xray Dataset', 'chest_xray', 'chest_xray', 'train')
+test_dir  = os.path.join(base_dir, '..', '..', 'data', 'Chest Xray Dataset', 'chest_xray', 'chest_xray', 'test')
+
+print(f"Resolved train_dir: {os.path.abspath(train_dir)}")
+print(f"Resolved test_dir: {os.path.abspath(test_dir)}")
 
 if not os.path.exists(train_dir): raise FileNotFoundError(train_dir)
 if not os.path.exists(test_dir): raise FileNotFoundError(test_dir)
