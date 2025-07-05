@@ -12,15 +12,19 @@ from tensorflow.keras.preprocessing import image
 np.random.seed(42)
 tf.random.set_seed(42)
 
-train_dir = 'data/Chest Xray Dataset/chest_xray/chest_xray/train'
-test_dir  = 'data/Chest Xray Dataset/chest_xray/chest_xray/test'
+base_dir = os.path.abspath(os.path.dirname(__file__))
+train_dir = os.path.join(base_dir, '..', '..', 'data', 'Chest Xray Dataset', 'chest_xray', 'chest_xray', 'train')
+test_dir  = os.path.join(base_dir, '..', '..', 'data', 'Chest Xray Dataset', 'chest_xray', 'chest_xray', 'test')
+
+print(f"Resolved train_dir: {os.path.abspath(train_dir)}")
+print(f"Resolved test_dir: {os.path.abspath(test_dir)}")
 
 if not os.path.exists(train_dir): raise FileNotFoundError(train_dir)
 if not os.path.exists(test_dir): raise FileNotFoundError(test_dir)
 
-IMG_SIZE = (224, 224) 
+IMG_SIZE = (224, 224)
 BATCH_SIZE = 16
-EPOCHS = 20
+EPOCHS = 5
 
 train_gen = ImageDataGenerator(rescale=1./255, rotation_range=20, zoom_range=0.2, horizontal_flip=True)
 test_gen = ImageDataGenerator(rescale=1./255)
@@ -33,6 +37,8 @@ test_data = test_gen.flow_from_directory(
 )
 
 print("Class Indices:", train_data.class_indices)
+print('Train class counts:', np.bincount(train_data.classes))
+print('Test class counts:', np.bincount(test_data.classes))
 
 class_weights = compute_class_weight(
     class_weight='balanced',
@@ -77,8 +83,10 @@ print(f"Test Accuracy: {acc:.4f}")
 model_dir = os.getcwd()
 os.makedirs(model_dir, exist_ok=True)
 model.save(os.path.join(model_dir, 'model_mobilenetv2.h5'), save_format='h5')
-model.save(os.path.join(model_dir, 'model_mobilenetv2.keras'))
+keras_path = os.path.abspath(os.path.join(model_dir, 'model_mobilenetv2.keras'))
+model.save(keras_path)
 print("Model saved in both .h5 and .keras formats!")
+print(f"Model saved in .keras format at: {keras_path}\nPlease copy this file to your backend/model/ directory if needed.")
 
 history_data = {
     'phase1': history1.history,
@@ -88,11 +96,13 @@ with open(os.path.join(model_dir, 'training_history.json'), 'w') as f:
     json.dump(history_data, f, indent=2)
 print("Training history saved.")
 
-for i in range(5):
+for i in range(10):
     img_path = test_data.filepaths[i]
     img = image.load_img(img_path, target_size=IMG_SIZE)
     img_array = image.img_to_array(img) / 255.0
     img_array = np.expand_dims(img_array, axis=0)
     prediction = model.predict(img_array)[0][0]
-    label = 'Pneumonia' if prediction >= 0.5 else 'Normal'
-    print(f"{os.path.basename(img_path)} → Pred: {label}, Confidence: {prediction:.4f}")
+    pred_label = 'Pneumonia' if prediction >= 0.3 else 'Normal'
+    true_label_idx = test_data.classes[i]
+    true_label = list(test_data.class_indices.keys())[list(test_data.class_indices.values()).index(true_label_idx)]
+    print(f"{os.path.basename(img_path)} | True: {true_label} | Pred: {pred_label} | Confidence: {prediction:.4f}")
