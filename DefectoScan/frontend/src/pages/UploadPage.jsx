@@ -11,20 +11,56 @@ export default function UploadPage() {
   const [preview, setPreview] = useState(null);
   const [result, setResult] = useState('');
   const [rawResponse, setRawResponse] = useState(null);
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const query = useQuery();
   const navigate = useNavigate();
   const [showFAQ, setShowFAQ] = useState(false);
 
-  let user = null;
-  try {
-    user = JSON.parse(localStorage.getItem('user'));
-  } catch (e) {}
+  useEffect(() => {
+    // Get user from localStorage
+    try {
+      const userData = localStorage.getItem('user');
+      console.log('UploadPage: Retrieved user data from localStorage:', userData);
+      if (userData) {
+        const parsedUser = JSON.parse(userData);
+        console.log('UploadPage: Parsed user data:', parsedUser);
+        setUser(parsedUser);
+      } else {
+        console.log('UploadPage: No user data found in localStorage');
+      }
+    } catch (e) {
+      console.error('Error parsing user data:', e);
+    }
+    setIsLoading(false);
+  }, []);
 
   useEffect(() => {
-    if (!user || (!user.email && !user.phone && !user.name)) {
+    console.log('UploadPage: Authentication check - isLoading:', isLoading, 'user:', user);
+    if (!isLoading && (!user || (!user.email && !user.phone && !user.name))) {
+      console.log('UploadPage: Redirecting to login - user not authenticated');
       navigate('/login');
+    } else if (!isLoading && user) {
+      console.log('UploadPage: User authenticated successfully:', user);
     }
-  }, [navigate]);
+  }, [user, isLoading, navigate]);
+
+  // Show loading state while checking authentication
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-white via-blue-100 to-purple-100">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-blue-800 text-lg">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Don't render the main content if user is not authenticated
+  if (!user || (!user.email && !user.phone && !user.name)) {
+    return null;
+  }
 
   const email = user?.email || query.get('email');
   const name = user?.name || query.get('name');
