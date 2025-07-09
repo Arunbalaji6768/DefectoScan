@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-// Configurable backend API URL
-const API_URL = import.meta.env.VITE_API_URL || "https://your-backend-url.onrender.com"; // <-- Replace with your backend URL if needed
-
+const API_URL = import.meta.env.VITE_API_URL || "https://defectoscan.onrender.com/";
 function useQuery() {
   return new URLSearchParams(useLocation().search);
 }
