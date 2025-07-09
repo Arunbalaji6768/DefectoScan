@@ -8,8 +8,8 @@ from tensorflow.keras import layers, models
 from datetime import datetime
 import os
 import numpy as np
-from routes.otp import otp_bp
-from routes.oauth import oauth_bp
+from backend.routes.otp import otp_bp
+from backend.routes.oauth import oauth_bp
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'your_super_secret_key_123')
