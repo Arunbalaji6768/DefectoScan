@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
+const API_URL = import.meta.env.VITE_API_URL || "https://defectoscan.onrender.com/";
 function useQuery() {
   return new URLSearchParams(useLocation().search);
 }
@@ -14,7 +15,6 @@ export default function UploadPage() {
   const navigate = useNavigate();
   const [showFAQ, setShowFAQ] = useState(false);
 
-  // Get user info from localStorage
   let user = null;
   try {
     user = JSON.parse(localStorage.getItem('user'));
@@ -34,7 +34,7 @@ export default function UploadPage() {
     setFile(f);
     if (f) {
       setPreview(URL.createObjectURL(f));
-      setResult(''); // Clear result on new file
+      setResult('');
     } else {
       setPreview(null);
       setResult('');
@@ -48,7 +48,7 @@ export default function UploadPage() {
     setResult('Predicting...');
     setRawResponse(null);
     try {
-      const response = await fetch('/predict', {
+      const response = await fetch(`${API_URL}/predict`, {
         method: 'POST',
         body: formData,
       });
