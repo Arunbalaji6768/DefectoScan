@@ -1,11 +1,5 @@
 {
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
-  ],
-  "routes": [
-    { "src": "/upload", "dest": "/index.html" },
-    { "src": "/login", "dest": "/index.html" },
-    { "src": "/oauth-success", "dest": "/index.html" },
-    { "src": "/(.*)", "dest": "/index.html" }
   ]
 } 
