@@ -85,6 +85,7 @@ export default function UploadPage() {
     formData.append('file', file);
     setResult('Predicting...');
     setRawResponse(null);
+    console.log('Using API_URL:', API_URL);
     try {
       const response = await fetch(`${API_URL}/predict`, {
         method: 'POST',
@@ -99,7 +100,8 @@ export default function UploadPage() {
         setResult(`Error: ${data.error || 'Prediction failed'}`);
       }
     } catch (err) {
-      setResult('Error: Could not connect to backend');
+      setResult('Error: Could not connect to backend. Please check your API URL and backend deployment.');
+      console.error('Error connecting to backend:', err);
     }
   };
 
