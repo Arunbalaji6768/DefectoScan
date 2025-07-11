@@ -7,6 +7,8 @@ function useQuery() {
 }
 
 export default function UploadPage() {
+  console.log('UploadPage component is being rendered');
+  
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [result, setResult] = useState('');
