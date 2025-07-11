@@ -18,7 +18,7 @@ export default function LoginPage() {
     const listener = (event) => {
       if (event.data && event.data.type === 'oauth-success') {
         localStorage.setItem('user', JSON.stringify(event.data.user));
-        window.location.href = '/upload';
+        navigate('/upload');
       }
     };
     window.addEventListener('message', listener);
@@ -28,7 +28,7 @@ export default function LoginPage() {
       if (user) {
         localStorage.setItem('user', user);
         localStorage.removeItem('oauth-user');
-        window.location.href = '/upload';
+        navigate('/upload');
       }
     }, 500);
     return () => {
@@ -76,7 +76,7 @@ export default function LoginPage() {
         setStep(2);
         setError("");
         localStorage.setItem('user', JSON.stringify({ phone: input }));
-        window.location.href = '/upload';
+        navigate('/upload');
         return;
       }
       throw new Error('Invalid OTP');
@@ -180,7 +180,7 @@ export default function LoginPage() {
                     name: decoded.name,
                     picture: decoded.picture
                   }));
-                  window.location.href = '/upload';
+                  navigate('/upload');
                 } catch (e) {
                   setError('Google login failed.');
                 }
