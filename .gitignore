@@ -122,6 +122,8 @@ jspm_packages/
 # ML Model files (if too large)
 *.h5
 *.keras
+!backend/model/model_mobilenetv2.h5
+!backend/model/model_mobilenetv2.keras
 *.pkl
 *.joblib
 
