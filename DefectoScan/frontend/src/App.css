@@ -1,0 +1,42 @@
+/* App.css */
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', sans-serif;
+  background-color: black;
+  overflow-x: hidden;
+}
+
+video {
+  pointer-events: none;
+}
+
+input, button {
+  font-family: inherit;
+}
+
+::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;
+}
+
+h1, h2 {
+  letter-spacing: 1px;
+}
+
+button {
+  transition: all 0.3s ease;
+}
+
+input:focus {
+  outline: none;
+}
+
+@keyframes spin-y {
+  0% { transform: rotateY(0deg); }
+  100% { transform: rotateY(360deg); }
+}
+.animate-spin-y {
+  animation: spin-y 20s linear infinite;
+}
