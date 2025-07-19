@@ -4,12 +4,6 @@ import { GoogleLogin, googleLogout } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
 
 export default function LoginPage() {
-  const [step, setStep] = useState(0); // 0: input, 1: OTP or password
-  const [input, setInput] = useState('');
-  const [isMobile, setIsMobile] = useState(false);
-  const [otp, setOtp] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showFAQ, setShowFAQ] = useState(false);
   const navigate = useNavigate();
@@ -18,7 +12,7 @@ export default function LoginPage() {
     const listener = (event) => {
       if (event.data && event.data.type === 'oauth-success') {
         localStorage.setItem('user', JSON.stringify(event.data.user));
-        window.location.href = '/upload';
+        navigate('/upload');
       }
     };
     window.addEventListener('message', listener);
@@ -28,69 +22,14 @@ export default function LoginPage() {
       if (user) {
         localStorage.setItem('user', user);
         localStorage.removeItem('oauth-user');
-        window.location.href = '/upload';
+        navigate('/upload');
       }
     }, 500);
     return () => {
       window.removeEventListener('message', listener);
       clearInterval(interval);
     };
-  }, []);
-
-  const handleContinue = async () => {
-    setError('');
-    if (/^\d{10}$/.test(input)) {
-      setIsMobile(true);
-      setLoading(true);
-      try {
-        const res = await fetch('/api/send-otp', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ phone: input })
-        });
-        if (!res.ok) throw new Error('Failed to send OTP');
-        setStep(1);
-      } catch (err) {
-        setError('Failed to send OTP. Try again.');
-      } finally {
-        setLoading(false);
-      }
-    } else if (/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(input)) {
-      setIsMobile(false);
-      setStep(1);
-    } else {
-      setError('Please enter a valid email or 10-digit mobile number.');
-    }
-  };
-
-  const handleVerifyOtp = async () => {
-    setError('');
-    setLoading(true);
-    try {
-      const res = await fetch('/api/verify-otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: input, otp })
-      });
-      if (res.ok) {
-        setStep(2);
-        setError("");
-        localStorage.setItem('user', JSON.stringify({ phone: input }));
-        window.location.href = '/upload';
-        return;
-      }
-      throw new Error('Invalid OTP');
-    } catch (err) {
-      setError('Invalid OTP. Try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleLogin = () => {
-    // Remove mock login logic for email
-    setError('Please use OTP or Google login.');
-  };
+  }, [navigate]);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-white via-blue-100 to-purple-100 p-8 animate-fade-in relative">
@@ -115,60 +54,6 @@ export default function LoginPage() {
           </div>
         )}
         <div className="flex flex-col items-center gap-4 mt-4 w-full">
-          {/* OTP Login Section */}
-          {step === 0 && (
-            <>
-              <input
-                type="text"
-                className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 text-lg bg-white/80"
-                placeholder="Enter your 10-digit mobile number"
-                value={input}
-                onChange={e => setInput(e.target.value)}
-                maxLength={10}
-                disabled={loading}
-              />
-              <button
-                className="w-full bg-blue-600 hover:bg-blue-700 py-3 px-4 rounded-xl text-white font-semibold shadow-lg text-lg transition-all duration-150"
-                onClick={handleContinue}
-                disabled={loading}
-              >
-                {loading ? 'Sending OTP...' : 'Send OTP'}
-              </button>
-            </>
-          )}
-          {step === 1 && isMobile && (
-            <>
-              <input
-                type="text"
-                className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 text-lg bg-white/80"
-                placeholder="Enter OTP"
-                value={otp}
-                onChange={e => setOtp(e.target.value)}
-                maxLength={6}
-                disabled={loading}
-              />
-              <button
-                className="w-full bg-green-600 hover:bg-green-700 py-3 px-4 rounded-xl text-white font-semibold shadow-lg text-lg transition-all duration-150"
-                onClick={handleVerifyOtp}
-                disabled={loading}
-              >
-                {loading ? 'Verifying...' : 'Verify OTP'}
-              </button>
-              <button
-                className="w-full bg-gray-300 hover:bg-gray-400 py-2 px-4 rounded-xl text-gray-800 font-semibold shadow text-sm mt-2 transition-all duration-150"
-                onClick={() => { setStep(0); setOtp(''); }}
-                disabled={loading}
-              >
-                Back
-              </button>
-            </>
-          )}
-          {/* Divider */}
-          <div className="flex items-center w-full my-4">
-            <div className="flex-grow h-px bg-gray-300"></div>
-            <span className="mx-2 bg-white rounded-full px-3 py-1 text-gray-500 font-semibold shadow">or</span>
-            <div className="flex-grow h-px bg-gray-300"></div>
-          </div>
           {/* Google Login Section */}
           <div className="w-full flex flex-col items-center">
             <GoogleLogin
@@ -180,7 +65,7 @@ export default function LoginPage() {
                     name: decoded.name,
                     picture: decoded.picture
                   }));
-                  window.location.href = '/upload';
+                  navigate('/upload');
                 } catch (e) {
                   setError('Google login failed.');
                 }

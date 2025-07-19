@@ -12,7 +12,7 @@ export default function LandingPage() {
         loop
         muted
         playsInline
-        className="absolute inset-0 w-full h-full object-cover opacity-60 animate-spin-slow"
+        className="absolute inset-0 w-full h-full object-cover opacity-60 animate-spin-y"
         style={{ zIndex: 0 }}
         aria-label="Background video of human lungs"
       >
