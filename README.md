@@ -14,6 +14,7 @@ DefectoScan is a full-stack application for automated chest X-ray analysis using
 ## Tech Stack
 - **Frontend:** React, Vite, Tailwind CSS, React Router, Google OAuth
 - **Backend:** Flask, TensorFlow, MongoDB, scikit-learn
+- **AI Model**: Convolutional Neural Network (CNN) using TensorFlow / PyTorch
 
 ## Getting Started
 
