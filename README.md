@@ -1,8 +1,5 @@
 # DefectoScan
 
-> **Demo Video:**
-> [![Watch the demo](demo-video-placeholder.png)](https://your-demo-video-link-here)
-
 ## Overview
 DefectoScan is a full-stack application for automated chest X-ray analysis using deep learning. It provides a user-friendly interface for uploading X-ray images and delivers instant predictions for pneumonia detection. The project features secure authentication, a modern React frontend, and a Flask backend with TensorFlow-powered inference.
 
@@ -69,5 +66,7 @@ This project is licensed under the MIT License. See [LICENSE](LICENSE) for detai
 
 ---
 
-> **Demo Video:**
-> _A space for your project demonstration video will be here!_ 
+> **Demo Video:**  
+> 🎥 [Click here to watch the demo on YouTube](https://youtu.be/h_mEus80PgI)
+
+[![Watch the Demo Video](https://img.youtube.com/vi/h_mEus80PgI/0.jpg)](https://youtu.be/h_mEus80PgI)
