@@ -70,4 +70,4 @@ This project is licensed under the MIT License. See [LICENSE](LICENSE) for detai
 ---
 
 > **Demo Video:**
-> _A space for your project demonstration video will be here!_
+>  [![Watch the demo](demo-video-placeholder.png)](https://your-demo-video-link-here)
