@@ -1,5 +1,6 @@
 # DefectoScan
 
+
 > **Demo Video:**
 > [![Watch the demo](demo-video-placeholder.png)](https://your-demo-video-link-here)
 
