@@ -1,11 +1,15 @@
 # DefectoScan
 
+🔗 **Live API:** https://defectoscan.onrender.com ([health check](https://defectoscan.onrender.com/health))
+
+> Hosted on Render's free tier, so the first request after a period of inactivity can take about a minute.
+
 
 > **Demo Video:**
 > [![Watch the demo](demo-video-placeholder.png)](https://your-demo-video-link-here)
 
 ## Overview
-DefectoScan is a full-stack application for automated chest X-ray analysis using deep learning. It provides a user-friendly interface for uploading X-ray images and delivers instant predictions for pneumonia detection. The project features secure authentication, a modern React frontend, and a Flask backend with TensorFlow-powered inference.
+DefectoScan is a full-stack application for automated chest X-ray analysis using deep learning. It provides a user-friendly interface for uploading X-ray images and delivers instant predictions for pneumonia detection. The project features secure authentication, a modern React frontend, and a Flask backend with ONNX Runtime inference (MobileNetV2 model exported from TensorFlow/Keras).
 
 ## Features
 - Upload and analyze chest X-ray images
