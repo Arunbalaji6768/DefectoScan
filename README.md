@@ -1,5 +1,6 @@
 # DefectoScan
 
+🔗 **Live app:** https://defectoscan.vercel.app  
 🔗 **Live API:** https://defectoscan.onrender.com ([health check](https://defectoscan.onrender.com/health))
 
 > Hosted on Render's free tier, so the first request after a period of inactivity can take about a minute.
